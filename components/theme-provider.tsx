@@ -47,23 +47,23 @@ function ThemeHotkey() {
         return
       }
 
-      if (event.key.toLowerCase() !== "d") {
-        return
+        if (!event.key || event.key.toLowerCase() !== "d") {
+          return
+        }
+
+        if (isTypingTarget(event.target)) {
+          return
+        }
+
+        setTheme(resolvedTheme === "dark" ? "light" : "dark")
       }
 
-      if (isTypingTarget(event.target)) {
-        return
+      window.addEventListener("keydown", onKeyDown)
+
+      return () => {
+        window.removeEventListener("keydown", onKeyDown)
       }
-
-      setTheme(resolvedTheme === "dark" ? "light" : "dark")
-    }
-
-    window.addEventListener("keydown", onKeyDown)
-
-    return () => {
-      window.removeEventListener("keydown", onKeyDown)
-    }
-  }, [resolvedTheme, setTheme])
+    }, [resolvedTheme, setTheme])
 
   return null
 }

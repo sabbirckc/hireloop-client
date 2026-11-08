@@ -1,20 +1,22 @@
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
+﻿import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { DashboardSidebar } from "../components/DashboardSidebar"
 
-function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({
+    children,
+}: {
+    children: React.ReactNode
+}) {
     return (
         <SidebarProvider>
             <DashboardSidebar />
-            <SidebarInset>
-                <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
-                    <SidebarTrigger className="-ml-1" />
+            <SidebarInset className="bg-[#0B0D13] text-zinc-100 min-h-screen">
+                <header className="flex h-12 shrink-0 items-center gap-2 border-b border-zinc-800/80 px-4 md:px-6">
+                    <SidebarTrigger className="-ml-1 text-zinc-400 hover:text-white" />
                 </header>
-                <main className="flex-1 p-6">
+                <main className="flex-1 p-6 md:p-10">
                     {children}
                 </main>
             </SidebarInset>
         </SidebarProvider>
     )
 }
-
-export default DashboardLayout

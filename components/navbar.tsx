@@ -14,6 +14,7 @@ import {
   Settings,
   Menu,
   ChevronDown,
+  LayoutDashboard,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -44,29 +45,38 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>
 }
 
-const navItems: NavItem[] = [
-  {
-    title: "Browse Jobs",
-    href: "/jobs",
-    icon: Briefcase,
-  },
-  {
-    title: "Company",
-    href: "/companies",
-    icon: Building2,
-  },
-  {
-    title: "Pricing",
-    href: "/pricing",
-    icon: CreditCard,
-  },
-]
-
 export function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const { data: session, isPending } = useSession()
   const [mobileOpen, setMobileOpen] = React.useState(false)
+
+  const user = session?.user
+  const role = user?.role || "seeker"
+  const dashboardHref = `/dashboard/${role}`
+
+  const navItems: NavItem[] = [
+    {
+      title: "Browse Jobs",
+      href: "/jobs",
+      icon: Briefcase,
+    },
+    {
+      title: "Company",
+      href: "/companies",
+      icon: Building2,
+    },
+    {
+      title: "Pricing",
+      href: "/pricing",
+      icon: CreditCard,
+    },
+    {
+      title: "Dashboard",
+      href: dashboardHref,
+      icon: LayoutDashboard,
+    },
+  ]
 
   const handleSignOut = async () => {
     try {
@@ -84,7 +94,6 @@ export function Navbar() {
     }
   }
 
-  const user = session?.user
   const userInitials = user?.name
     ? user.name
       .split(" ")
@@ -186,6 +195,18 @@ export function Navbar() {
                   <DropdownMenuSeparator />
 
                   <DropdownMenuGroup>
+                    <DropdownMenuItem
+                      render={
+                        <Link
+                          href={dashboardHref}
+                          className="flex w-full cursor-pointer items-center gap-2"
+                        />
+                      }
+                    >
+                      <LayoutDashboard className="size-4 text-muted-foreground" />
+                      <span>Dashboard</span>
+                    </DropdownMenuItem>
+
                     <DropdownMenuItem
                       render={
                         <Link

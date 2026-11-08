@@ -1,4 +1,5 @@
 export interface JobFormData {
+    id?: string
     title: string
     companyName: string
     category: string
@@ -10,8 +11,11 @@ export interface JobFormData {
     minSalary: string | number
     maxSalary: string | number
     frequency: string
-    responsibilities: string
-    requirements: string
+    responsibilities?: string
+    requirements?: string
+    status?: "Active" | "Expired" | "Draft"
+    applicantsCount?: number
+    postedAt?: string
     [key: string]: unknown
 }
 
@@ -30,5 +34,5 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"
             throw new Error(`Failed to create job: ${res.statusText}`)
         }
 
-        return await res.json()
-    }
+    return await res.json()
+}

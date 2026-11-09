@@ -28,12 +28,12 @@ export default function RootLayout({
         geist.variable
       )}
     >
-        <body className="flex min-h-screen flex-col bg-background text-foreground">
-          <ThemeProvider>
-            <Navbar />
-            <main className="flex-1">{children}</main>
-          </ThemeProvider>
-        </body>
+      <body className="flex min-h-screen flex-col bg-background text-foreground">
+        <ThemeProvider>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+        </ThemeProvider>
+      </body>
     </html>
   )
 }

@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createJob } from "@/lib/actions/jobs"
+import { toast } from "@/components/ui/toast"
 
 const CATEGORIES = [
     "Engineering & Tech",
@@ -85,11 +86,36 @@ export default function NewJobPage() {
             console.log("Publishing Job Listing:", formData)
             const result = await createJob(formData)
             console.log("Job created successfully:", result)
-            setIsSubmitted(true)
+
+            if (typeof window !== "undefined") {
+                localStorage.setItem("hireloop_job_created_toast", "true")
+                sessionStorage.setItem("hireloop_job_created_toast", "true")
+            }
+
+            toast.add({
+                title: "Job created",
+                description: "The job has been succesfully",
+            })
+
+            setTimeout(() => {
+                router.push("/dashboard/recruiter/jobs")
+            }, 600)
         } catch (error) {
             console.error("Failed to create job:", error)
             // If API server is offline in dev, allow UX preview
-            setIsSubmitted(true)
+            if (typeof window !== "undefined") {
+                localStorage.setItem("hireloop_job_created_toast", "true")
+                sessionStorage.setItem("hireloop_job_created_toast", "true")
+            }
+
+            toast.add({
+                title: "Job created",
+                description: "The job has been succesfully",
+            })
+
+            setTimeout(() => {
+                router.push("/dashboard/recruiter/jobs")
+            }, 600)
         } finally {
             setIsSubmitting(false)
         }
@@ -158,6 +184,25 @@ export default function NewJobPage() {
                             Fill in the position specifications to attract qualified talent across our network.
                         </p>
                     </div>
+
+                    {/* Top Right Action Button */}
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#5B50FF] px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-indigo-600/30 hover:bg-[#4E43E8] transition-all disabled:opacity-50"
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="size-4 animate-spin" />
+                                <span>Publishing...</span>
+                            </>
+                        ) : (
+                            <>
+                                <span>Publish Job</span>
+                                <ArrowRight className="size-4" />
+                            </>
+                        )}
+                    </button>
                 </div>
 
                 {/* SECTION 1: 1. Basic Information */}

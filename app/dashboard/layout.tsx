@@ -1,5 +1,6 @@
-﻿import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { DashboardSidebar } from "../components/DashboardSidebar"
+import { Toaster } from "@/components/ui/toast"
 
 export default function DashboardLayout({
     children,
@@ -16,6 +17,7 @@ export default function DashboardLayout({
                 <main className="flex-1 p-6 md:p-10">
                     {children}
                 </main>
+                <Toaster />
             </SidebarInset>
         </SidebarProvider>
     )

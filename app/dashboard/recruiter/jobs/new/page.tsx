@@ -18,20 +18,12 @@ import {
 import { cn } from "@/lib/utils"
 import { createJob } from "@/lib/actions/jobs"
 import { toast } from "@/components/ui/toast"
-
-const CATEGORIES = [
-    "Engineering & Tech",
-    "Design & Creative",
-    "Product Management",
-    "Marketing & Sales",
-    "Data & Analytics",
-    "Finance & Operations",
-    "Customer Support",
-]
-
-const JOB_TYPES = ["Full-time", "Part-time", "Contract", "Internship"]
-
-const FREQUENCIES = ["per hour", "per month", "per year"]
+import { FormSectionHeader } from "@/components/jobs"
+import {
+    JOB_CATEGORIES as CATEGORIES,
+    JOB_TYPES_LIST as JOB_TYPES,
+    SALARY_FREQUENCIES as FREQUENCIES,
+} from "@/types/job"
 
 export default function NewJobPage() {
     const router = useRouter()
@@ -207,10 +199,7 @@ export default function NewJobPage() {
 
                 {/* SECTION 1: 1. Basic Information */}
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                        <span className="size-2 rounded-full bg-[#5B50FF]" />
-                        <span>1. Basic Information</span>
-                    </div>
+                    <FormSectionHeader step={1} title="Basic Information" />
 
                     {/* Job Title */}
                     <div className="space-y-1.5">
@@ -300,10 +289,7 @@ export default function NewJobPage() {
 
                 {/* SECTION 2: 2. Location, Compensation & Timeline */}
                 <div className="space-y-4 pt-2">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                        <span className="size-2 rounded-full bg-[#5B50FF]" />
-                        <span>2. Location, Compensation & Timeline</span>
-                    </div>
+                    <FormSectionHeader step={2} title="Location, Compensation & Timeline" />
 
                     {/* Remote Work Allowed Banner */}
                     <div className="flex items-center justify-between rounded-xl border border-zinc-800/80 bg-[#12151F] p-4">
@@ -451,10 +437,7 @@ export default function NewJobPage() {
 
                 {/* SECTION 3: 3. Responsibilities & Requirements */}
                 <div className="space-y-4 pt-2">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                        <span className="size-2 rounded-full bg-[#5B50FF]" />
-                        <span>3. Responsibilities & Requirements</span>
-                    </div>
+                    <FormSectionHeader step={3} title="Responsibilities & Requirements" />
 
                     {/* Key Responsibilities */}
                     <div className="space-y-1.5">

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Trash2, Loader2 } from "lucide-react"
+import type { JobFormData } from "@/types/job"
 import { toast } from "@/components/ui/toast"
 import {
     AlertDialog,
@@ -17,13 +18,7 @@ import {
 } from "@/components/ui/alert-dialog"
 
 export interface DeleteJobDialogProps {
-    job?: {
-        id: string
-        _id?: string
-        title?: string
-        jobTitle?: string
-        [key: string]: unknown
-    } | null
+    job?: (Partial<JobFormData> & { id: string }) | null
     open?: boolean
     onOpenChange?: (open: boolean) => void
     onDelete?: (id: string, mongoId?: string) => void | Promise<void>

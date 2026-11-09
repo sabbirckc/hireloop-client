@@ -1,4 +1,4 @@
-import type { JobFormData } from "@/lib/actions/jobs"
+import type { JobFormData } from "@/types/job"
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"
 
@@ -35,15 +35,15 @@ export const getJobs = async (): Promise<JobFormData[]> => {
 
     // 1. Try to fetch from Next.js internal API first (direct MongoDB connection)
     try {
-                const res = await fetch(`/api/jobs?t=${Date.now()}`, {
-                    cache: "no-store",
-                    headers: {
-                        "Pragma": "no-cache",
-                        "Cache-Control": "no-cache",
-                    },
-                })
-        if(res.ok) {
-                    const data = await res.json()
+        const res = await fetch(`/api/jobs?t=${Date.now()}`, {
+            cache: "no-store",
+            headers: {
+                "Pragma": "no-cache",
+                "Cache-Control": "no-cache",
+            },
+        })
+        if (res.ok) {
+            const data = await res.json()
             if (Array.isArray(data)) {
                 apiJobs = data
             }
@@ -69,36 +69,36 @@ export const getJobs = async (): Promise<JobFormData[]> => {
         }
     }
 
-// 2. Load custom jobs created from the frontend
-let localJobs: JobFormData[] = []
-if (typeof window !== "undefined") {
-    try {
-        const raw = localStorage.getItem("hireloop_custom_jobs")
-        if (raw) {
-            localJobs = JSON.parse(raw)
+    // 2. Load custom jobs created from the frontend
+    let localJobs: JobFormData[] = []
+    if (typeof window !== "undefined") {
+        try {
+            const raw = localStorage.getItem("hireloop_custom_jobs")
+            if (raw) {
+                localJobs = JSON.parse(raw)
+            }
+        } catch (err) {
+            console.error("Error reading jobs from localStorage:", err)
         }
-    } catch (err) {
-        console.error("Error reading jobs from localStorage:", err)
     }
-}
 
-// 3. Get list of permanently deleted IDs
-const deletedIds = getDeletedJobIds()
+    // 3. Get list of permanently deleted IDs
+    const deletedIds = getDeletedJobIds()
 
-// 4. Combine: new custom jobs first, then API jobs (deduplicated by ID)
-const combined = [...localJobs, ...apiJobs]
-const seen = new Set<string>()
+    // 4. Combine: new custom jobs first, then API jobs (deduplicated by ID)
+    const combined = [...localJobs, ...apiJobs]
+    const seen = new Set<string>()
 
-return combined.filter((job) => {
-    // Exclude permanently deleted jobs
-    if (job.id && deletedIds.has(job.id)) return false
-    if (job._id && deletedIds.has(job._id)) return false
+    return combined.filter((job) => {
+        // Exclude permanently deleted jobs
+        if (job.id && deletedIds.has(job.id)) return false
+        if (job._id && deletedIds.has(job._id)) return false
 
-    const key = job._id || job.id || `${job.title}-${job.companyName}`
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
-})
+        const key = job._id || job.id || `${job.title}-${job.companyName}`
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+    })
 }
 
 /**

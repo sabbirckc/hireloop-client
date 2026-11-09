@@ -30,75 +30,108 @@ export const saveDeletedJobId = (id: string, mongoId?: string) => {
     }
 }
 
-export const getJobs = async (): Promise<JobFormData[]> => {
+export const getJobs = async (query = ''): Promise<JobFormData[]> => {
     let apiJobs: JobFormData[] = []
+
+    const queryString = query ? (query.startsWith('?') ? query.slice(1) : query) : ''
 
     // 1. Try to fetch from Next.js internal API first (direct MongoDB connection)
     try {
-        const res = await fetch(`/api/jobs?t=${Date.now()}`, {
-            cache: "no-store",
-            headers: {
-                "Pragma": "no-cache",
-                "Cache-Control": "no-cache",
-            },
-        })
-        if (res.ok) {
-            const data = await res.json()
-            if (Array.isArray(data)) {
-                apiJobs = data
-            }
-        }
-    } catch {
-        // Fallback to Express backend if Next.js internal API didn't answer (e.g. during SSR)
-        try {
-            const res = await fetch(`${BASE_URL}/jobs?t=${Date.now()}`, {
+            const res = await fetch(`/api/jobs?t=${Date.now()}${queryString ? `&${queryString}` : ''}`, {
                 cache: "no-store",
                 headers: {
                     "Pragma": "no-cache",
                     "Cache-Control": "no-cache",
                 },
             })
-            if (res.ok) {
+        if(res.ok) {
+                const data = await res.json()
+            if (Array.isArray(data)) {
+            apiJobs = data
+        }
+    }
+    } catch {
+    // Fallback to Express backend if Next.js internal API didn't answer (e.g. during SSR)
+    try {
+            const res = await fetch(`${BASE_URL}/jobs?t=${Date.now()}${queryString ? `&${queryString}` : ''}`, {
+                cache: "no-store",
+                headers: {
+                    "Pragma": "no-cache",
+                    "Cache-Control": "no-cache",
+                },
+            })
+            if(res.ok) {
                 const data = await res.json()
                 if (Array.isArray(data)) {
-                    apiJobs = data
-                }
-            }
+            apiJobs = data
+        }
+    }
         } catch {
-            // Both servers offline, will rely on client storage
-        }
+    // Both servers offline, will rely on client storage
+}
     }
 
-    // 2. Load custom jobs created from the frontend
-    let localJobs: JobFormData[] = []
-    if (typeof window !== "undefined") {
-        try {
-            const raw = localStorage.getItem("hireloop_custom_jobs")
-            if (raw) {
-                localJobs = JSON.parse(raw)
-            }
-        } catch (err) {
-            console.error("Error reading jobs from localStorage:", err)
+// 2. Load custom jobs created from the frontend
+let localJobs: JobFormData[] = []
+if (typeof window !== "undefined") {
+    try {
+        const raw = localStorage.getItem("hireloop_custom_jobs")
+        if (raw) {
+            localJobs = JSON.parse(raw)
         }
+    } catch (err) {
+        console.error("Error reading jobs from localStorage:", err)
     }
+}
 
-    // 3. Get list of permanently deleted IDs
-    const deletedIds = getDeletedJobIds()
+// Filter localJobs if query params are present
+if (queryString) {
+    const params = new URLSearchParams(queryString)
+    const filterJobType = params.get("jobType")
+    const filterCategory = params.get("category") || params.get("calegory")
+    const filterIsRemote = params.get("isRemote")
+    const filterSearch = params.get("search") || params.get("q")
 
-    // 4. Combine: new custom jobs first, then API jobs (deduplicated by ID)
-    const combined = [...localJobs, ...apiJobs]
-    const seen = new Set<string>()
+    if (filterJobType) {
+        const regex = new RegExp(`^${filterJobType.replace(/-/g, '[-\\s]')}$`, "i")
+        localJobs = localJobs.filter((j) => regex.test(j.jobType || j.type || ""))
+    }
+    if (filterCategory) {
+        const regex = new RegExp(filterCategory, "i")
+        localJobs = localJobs.filter((j) => regex.test(j.category || j.department || ""))
+    }
+    if (filterIsRemote !== null) {
+        const isRemoteBool = filterIsRemote === "true"
+        localJobs = localJobs.filter((j) => j.isRemote === isRemoteBool)
+    }
+    if (filterSearch) {
+        const regex = new RegExp(filterSearch, "i")
+        localJobs = localJobs.filter((j) =>
+            regex.test(j.title || j.jobTitle || "") ||
+            regex.test(j.companyName || j.company || "") ||
+            regex.test(j.category || j.department || "") ||
+            regex.test(j.location || "")
+        )
+    }
+}
 
-    return combined.filter((job) => {
-        // Exclude permanently deleted jobs
-        if (job.id && deletedIds.has(job.id)) return false
-        if (job._id && deletedIds.has(job._id)) return false
+// 3. Get list of permanently deleted IDs
+const deletedIds = getDeletedJobIds()
 
-        const key = job._id || job.id || `${job.title}-${job.companyName}`
-        if (seen.has(key)) return false
-        seen.add(key)
-        return true
-    })
+// 4. Combine: new custom jobs first, then API jobs (deduplicated by ID)
+const combined = [...localJobs, ...apiJobs]
+const seen = new Set<string>()
+
+return combined.filter((job) => {
+    // Exclude permanently deleted jobs
+    if (job.id && deletedIds.has(job.id)) return false
+    if (job._id && deletedIds.has(job._id)) return false
+
+    const key = job._id || job.id || `${job.title}-${job.companyName}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+})
 }
 
 /**

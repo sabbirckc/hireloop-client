@@ -16,7 +16,7 @@ export interface JobFormData {
     type?: string
     isRemote: boolean
     location: string
-    deadline: string
+    deadline?: string
     currency: string
     minSalary: string | number
     maxSalary: string | number
@@ -26,6 +26,10 @@ export interface JobFormData {
     status?: JobStatus
     applicantsCount?: number
     postedAt?: string
+    tag?: string
+    tagVariant?: "emerald" | "amber" | "zinc" | "blue" | string
+    companyLogo?: string
+    experienceLevel?: string
     [key: string]: unknown
 }
 
